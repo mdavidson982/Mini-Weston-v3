@@ -3,25 +3,38 @@ from discord.ext import commands
 import Private as p
 
 #NASA Buttons
+class ReturntoImage(discord.ui.View):
+    def __init__(self, json, timeout = 180):
+        super().__init__(timeout=timeout)
+        self.js = json
+
+    @discord.ui.button(label="Return to Image", style=discord.ButtonStyle.green,)
+    async def viewImage(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if(self.js["media_type"] == "image"):
+                apodImageEmbed = discord.Embed(title = "**" + self.js["title"] + "**")
+
+                if("hdurl" in self.js):
+                    apodImageEmbed.set_image(url = self.js["hdurl"])
+                    apodImageEmbed.set_footer(text = "NASA Astronomy Picture of the Day | Date: {date}".format(date = self.js["date"]), icon_url= "https://cdn.discordapp.com/attachments/849172801076199495/1049776014131200021/nasa-logo-web-rgb.png")
+                else:
+                    apodImageEmbed.set_image(self.js["url"])
+                    apodImageEmbed.set_footer(text = "NASA Astronomy Picture of the Day | Date: {date} |".format(date = self.js["date"]), icon_url= "https://cdn.discordapp.com/attachments/849172801076199495/1049776014131200021/nasa-logo-web-rgb.png")
+
+        await interaction.response.edit_message(embed=apodImageEmbed, view = ReadDescription(self.js))
+        
+
 class ReadDescription(discord.ui.View):
     def __init__(self, json, timeout = 180):
         super().__init__(timeout=timeout)
         self.js = json
 
-    # When the confirm button is pressed, set the inner value to `True` and
-    # stop the View from listening to more input.
-    # We also send the user an ephemeral message that we're confirming their choice.
+    
     @discord.ui.button(label='Read Description', style=discord.ButtonStyle.green, )
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         apodDescriptionEmbed = discord.Embed(title = "**" + self.js["title"] + "**")
         apodDescriptionEmbed.set_footer(text=self.js["explanation"])
         apodDescriptionEmbed.set_thumbnail(url= "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/NASA_Worm_logo.svg/2560px-NASA_Worm_logo.svg.png")
-        await interaction.response.edit_message(embed = apodDescriptionEmbed)
-
-    # This one is similar to the confirmation button except sets the inner value to `False`
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
-    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message('Cancelling', ephemeral=True)
+        await interaction.response.edit_message(embed = apodDescriptionEmbed, view = ReturntoImage(self.js))
 
 class nasa(commands.Cog):
     def __init__(self,bot):
