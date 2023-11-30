@@ -3,6 +3,7 @@ from discord.ext import commands
 import Private as p
 
 #NASA Buttons
+"""
 class ReturntoImage(discord.ui.View):
     def __init__(self, json, timeout = 180):
         super().__init__(timeout=timeout)
@@ -11,7 +12,7 @@ class ReturntoImage(discord.ui.View):
     @discord.ui.button(label="Return to Image", style=discord.ButtonStyle.green,)
     async def viewImage(self, interaction: discord.Interaction, button: discord.ui.Button):
         if(self.js["media_type"] == "image"):
-                apodImageEmbed = discord.Embed(title = "**" + self.js["title"] + "**")
+                apodImageEmbed = discord.Embed(title = "**" + self.js["title"] + "**", color = discord.Color.teal()  , url = self.js["url"])
 
                 if("hdurl" in self.js):
                     apodImageEmbed.set_image(url = self.js["hdurl"])
@@ -30,11 +31,21 @@ class ReadDescription(discord.ui.View):
 
     
     @discord.ui.button(label='Read Description', style=discord.ButtonStyle.green, )
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-        apodDescriptionEmbed = discord.Embed(title = "**" + self.js["title"] + "**")
+    async def viewDescription(self, interaction: discord.Interaction, button: discord.ui.Button):
+        apodDescriptionEmbed = discord.Embed(title = "**" + self.js["title"] + "**", color = discord.Color.teal()  , url = self.js["url"])
         apodDescriptionEmbed.set_footer(text=self.js["explanation"])
         apodDescriptionEmbed.set_thumbnail(url= "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/NASA_Worm_logo.svg/2560px-NASA_Worm_logo.svg.png")
         await interaction.response.edit_message(embed = apodDescriptionEmbed, view = ReturntoImage(self.js))
+
+"""
+
+class linkedButton(discord.ui.View):
+    def __init__(self, json, timeout = 180):
+        super().__init__(timeout=timeout)
+        self.js = json
+        button = discord.ui.Button(label= "View Full Image", style = discord.ButtonStyle.link,url= self.js["url"] )
+        self.add_item(button)
+
 
 class nasa(commands.Cog):
     def __init__(self,bot):
@@ -49,7 +60,7 @@ class nasa(commands.Cog):
                 self.js = await r.json()
         
         if(self.js["media_type"] == "image"):
-            apodImageEmbed = discord.Embed(title = "**" + self.js["title"] + "**")
+            apodImageEmbed = discord.Embed(title = "**" + self.js["title"] + "**", color = discord.Color.teal()  , url = self.js["url"], description=self.js["explanation"])
 
             if("hdurl" in self.js):
                 apodImageEmbed.set_image(url = self.js["hdurl"])
@@ -58,13 +69,8 @@ class nasa(commands.Cog):
                 apodImageEmbed.set_image(self.js["url"])
                 apodImageEmbed.set_footer(text = "NASA Astronomy Picture of the Day | Date: {date} |".format(date = self.js["date"]), icon_url= "https://cdn.discordapp.com/attachments/849172801076199495/1049776014131200021/nasa-logo-web-rgb.png")
 
-        await ctx.send(embed=apodImageEmbed, view = ReadDescription(self.js))
+        await ctx.send(embed=apodImageEmbed, view = linkedButton(self.js))
 
 
-
-#async def sendMessage():
-    #guild = client.get_guild(785260019209863220)
-    #channel = guild.get_channel(785260019209863223)
-    #async guild.channel.send("sent on start")
 async def setup(bot):
     await bot.add_cog(nasa(bot))
