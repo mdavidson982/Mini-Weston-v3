@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import sys, traceback, os
 import Private as p
+from SQLconnector import SQLPool as SQLc
 
 class MiniWeston(commands.Bot):
     def __init__(self):
