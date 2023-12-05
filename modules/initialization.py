@@ -13,10 +13,7 @@ class initialization(commands.Cog):
             selected_channel = guild.name
             print(selected_channel)
         dbRef = await SQLc.connect()
-        collections = dbRef.collection("Server").document("785260019209863220").collections()
-        for collection in collections:
-            for doc in collection.stream():
-                print(f"{doc.id} => {doc.to_dict()}")
+        return dbRef
 
 
 async def setup(bot):
