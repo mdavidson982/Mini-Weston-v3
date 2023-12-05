@@ -12,8 +12,6 @@ class initialization(commands.Cog):
         for guild in self.bot.guilds:
             selected_channel = guild.name
             print(selected_channel)
-        dbRef = await SQLc.connect()
-        return dbRef
 
 
 async def setup(bot):
