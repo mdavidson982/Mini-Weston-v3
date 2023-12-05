@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from SQLconnector import SQLPool as SQLc
 
 class initialization(commands.Cog):
     def __init__(self, bot):
