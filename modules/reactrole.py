@@ -233,6 +233,57 @@ class reactClass(commands.Cog):
         else:
             await ctx.send("You new here?") #add the user to the firebase server. If the user isn't in the doc it uses the bottom condition
             await self.removeRoleToDatabase(user,0, guildID)
+
+
+    @commands.command(name="_registerAll")
+    @commands.has_permissions(administrator=True)
+    async def _registerAll(self, ctx):
+        guild = ctx.guild
+        db = self.bot.client
+        user_collection = db.collection("User")
+
+        print("Command Start")
+
+        for member in guild.members:
+            # Skip bot accounts
+            if not member.bot:
+                    
+                
+                # Check if user is already in the database
+                userDoc = user_collection.document(str(member.id))
+                if not userDoc.get().exists:
+                    # Create a new user document if not existing
+                    print("Create User Doc")
+                    userDoc.set({
+                        "name": member.name,
+                        "roles": {},
+                        "adminRoles": {},
+                        "servers": [],
+                        "userID": str(member.id)
+                    })
+
+                # Fetch or create the roles and adminRoles maps
+                user_data = userDoc.get().to_dict()
+                roles = user_data.get("roles", {})
+                admin_roles = user_data.get("adminRoles", {})
+
+                # Iterate through member's roles
+                non_admin_roles = []
+                admin_role_ids = []
+                for role in member.roles:
+                    if role.permissions.administrator:
+                        admin_role_ids.append(str(role.id))
+                    else:
+                        if role.id != guild.id:
+                            non_admin_roles.append(str(role.id))
+
+                # Update roles and adminRoles in the user document
+                roles[str(guild.id)] = non_admin_roles
+                admin_roles[str(guild.id)] = admin_role_ids
+                userDoc.update({
+                    "roles": roles,
+                    "adminRoles": admin_roles
+                })
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
