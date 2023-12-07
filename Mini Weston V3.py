@@ -10,6 +10,10 @@ class MiniWeston(commands.Bot):
     def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.messages = True
+        intents.members = True
+        intents.guild_scheduled_events = True
+        intents.guild_messages = True
         self.client = None
         super().__init__(command_prefix=commands.when_mentioned_or('-'), intents=intents)
 
