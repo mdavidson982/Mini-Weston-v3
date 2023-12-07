@@ -114,38 +114,38 @@ class reactClass(commands.Cog):
             userDocServers = userDocData.get("servers")
             #print(userDocRoles)
             #print(userDocServers)
-            if str(serverID.id) in userDocServers and str(serverID.id) in userDocRoles:
+            if str(serverID) in userDocServers and str(serverID) in userDocRoles:
                 #print("User In Server!")
-                UsersRoleInServer = userDocRoles[str(serverID.id)]
+                UsersRoleInServer = userDocRoles[str(serverID)]
                 if roleID in UsersRoleInServer:
                     #print("Adding Role to User!")
-                    userDocRoles[str(serverID.id)].remove(str(roleID))
+                    userDocRoles[str(serverID)].remove(str(roleID))
                     userDoc.set({
                     "name":member.name,
                     "roles":userDocRoles,
                     "servers":userDocServers,
                     "userID":str(member.id)
                 })
-                    print(f"Updated {member.name}:{member.id} document in User collection. Removed {roleID} to {serverID.id} key")
+                    print(f"Updated {member.name}:{member.id} document in User collection. Removed {roleID} to {serverID} key")
                 else:
                     print("User shouldn't have this role to begin with?")
                     
             else:
                 print(f"User isn't in server. Adding server ID. BUT The user shouldn't have this role?")
-                userDocServers.append(str(serverID.id))
-                userDocRoles[str(serverID.id)] = []
+                userDocServers.append(str(serverID))
+                userDocRoles[str(serverID)] = []
                 userDoc.set({
                 "name":member.name,
                 "roles":userDocRoles,
                 "servers":userDocServers,
                 "userID":str(member.id)
             })
-                print(f"Updated {member.name}:{member.id} document in User collection. Added {serverID.id} ignored {roleID}")
+                print(f"Updated {member.name}:{member.id} document in User collection. Added {serverID} ignored {roleID}")
         else:
             userDoc.set({
                 "name":member.name,
-                "roles":{str(serverID.id) : []},
-                "servers":[str(serverID.id)],
+                "roles":{str(serverID) : []},
+                "servers":[str(serverID)],
                 "userID":str(member.id)
             })
             print(f"Added {member.name}:{member.id} document to User collection")
@@ -205,13 +205,22 @@ class reactClass(commands.Cog):
             userDocRoles = userDocData.get("roles")
             userDocServers = userDocData.get("servers")
             
+
             
             if str(ctx.guild.id) in userDocServers:
                 usersRoleInServer = userDocRoles[str(guildID)]
                 roles = guild.roles
+                admin = False
+                adminRolesInServer = None
+                if "adminRoles" in userDocData and str(guildID) in userDocData["adminRoles"]:
+                    adminRolesInServer = userDocData["adminRoles"][str(ctx.guild.id)]
+                    admin = True
                 for role in roles:
                     if str(role.id) in usersRoleInServer:
                         await ctx.author.add_roles(role)
+                    if admin and str(role.id) in adminRolesInServer:
+                        await ctx.author.add_roles(role)
+                    
 
             else:
                 print("Reinstate user wasn't in the server. Ignoring command and adding user to database")
@@ -223,57 +232,7 @@ class reactClass(commands.Cog):
                 })
         else:
             await ctx.send("You new here?") #add the user to the firebase server. If the user isn't in the doc it uses the bottom condition
-            self.removeRoleToDatabase(user,0, guildID)
-
-    @commands.command(name="_registerAll")
-    @commands.has_permissions(administrator=True)
-    async def _registerAll(self, ctx):
-        guild = ctx.guild
-        db = self.bot.client
-        user_collection = db.collection("User")
-
-        print("Command Start")
-
-        for member in guild.members:
-            # Skip bot accounts
-            if not member.bot:
-                    
-                
-                # Check if user is already in the database
-                userDoc = user_collection.document(str(member.id))
-                if not userDoc.get().exists:
-                    # Create a new user document if not existing
-                    print("Create User Doc")
-                    userDoc.set({
-                        "name": member.name,
-                        "roles": {},
-                        "adminRoles": {},
-                        "servers": [],
-                        "userID": str(member.id)
-                    })
-
-                # Fetch or create the roles and adminRoles maps
-                user_data = userDoc.get().to_dict()
-                roles = user_data.get("roles", {})
-                admin_roles = user_data.get("adminRoles", {})
-
-                # Iterate through member's roles
-                non_admin_roles = []
-                admin_role_ids = []
-                for role in member.roles:
-                    if role.permissions.administrator:
-                        admin_role_ids.append(str(role.id))
-                    else:
-                        non_admin_roles.append(str(role.id))
-
-                # Update roles and adminRoles in the user document
-                roles[str(guild.id)] = non_admin_roles
-                admin_roles[str(guild.id)] = admin_role_ids
-                userDoc.update({
-                    "roles": roles,
-                    "adminRoles": admin_roles
-                })
-
+            await self.removeRoleToDatabase(user,0, guildID)
     
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
