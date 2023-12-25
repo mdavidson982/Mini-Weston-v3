@@ -58,6 +58,7 @@ class nasa(commands.Cog):
         async with aiohttp.ClientSession() as session:
             async with session.get(base_url + p.NASA_API_KEY) as r:
                 self.js = await r.json()
+                print(base_url + p.NASA_API_KEY)
         
         if(self.js["media_type"] == "image"):
             apodImageEmbed = discord.Embed(title = "**" + self.js["title"] + "**", color = discord.Color.teal()  , url = self.js["url"], description=self.js["explanation"])
@@ -68,8 +69,12 @@ class nasa(commands.Cog):
             else:
                 apodImageEmbed.set_image(self.js["url"])
                 apodImageEmbed.set_footer(text = "NASA Astronomy Picture of the Day | Date: {date} |".format(date = self.js["date"]), icon_url= "https://cdn.discordapp.com/attachments/849172801076199495/1049776014131200021/nasa-logo-web-rgb.png")
-
-        await ctx.send(embed=apodImageEmbed, view = linkedButton(self.js))
+            await ctx.send(embed=apodImageEmbed, view = linkedButton(self.js))
+        elif(self.js["media_type"] == "video"):
+            apodImageEmbed = discord.Embed(title="**" + self.js["title"] + "**", color = discord.Color.teal()  , url = self.js["url"], description=self.js["explanation"])
+            apodImageEmbed.set_footer(text = "NASA Astronomy Picture of the Day | Date: {date}".format(date = self.js["date"]), icon_url= "https://cdn.discordapp.com/attachments/849172801076199495/1049776014131200021/nasa-logo-web-rgb.png")
+            await ctx.send(embed=apodImageEmbed, view = linkedButton(self.js))
+            await ctx.send(self.js["url"])
 
 
 async def setup(bot):

@@ -258,7 +258,7 @@ class reactClass(commands.Cog):
                         "name": member.name,
                         "roles": {},
                         "adminRoles": {},
-                        "servers": [],
+                        "servers": [str(guild.id)],
                         "userID": str(member.id)
                     })
 
