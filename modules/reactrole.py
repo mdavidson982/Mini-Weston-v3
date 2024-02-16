@@ -258,7 +258,11 @@ class reactClass(commands.Cog):
                         "name": member.name,
                         "roles": {},
                         "adminRoles": {},
+<<<<<<< HEAD
                         "servers": [str(ctx.guild.id)],
+=======
+                        "servers": [str(guild.id)],
+>>>>>>> 43ae1885eadb14e50ccc4e2e5a5fed9ebbaf9070
                         "userID": str(member.id)
                     })
 
