@@ -133,7 +133,7 @@ class reactClass(commands.Cog):
                     
             else:
                 print(f"User isn't in server. Adding server ID. BUT The user shouldn't have this role?")
-                userDocServers.append(str(serverID.id))
+                userDocServers.append(str(serverID))
                 userDocRoles[str(serverID)] = []
                 userDoc.set({
                 "name":member.name,
