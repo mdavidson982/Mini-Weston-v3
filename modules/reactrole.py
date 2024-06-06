@@ -104,16 +104,17 @@ class reactClass(commands.Cog):
                 
 
         
-    async def removeRoleToDatabase(self, member, roleID, serverID):
+    async def removeRoleToDatabase(self, member, roleID, server):
         db = self.bot.client
         userDoc = db.collection("User").document(str(member.id))
+        serverID = server.id
         if userDoc.get().exists:
             #print("User Doc Found!")
             userDocData = userDoc.get().to_dict()
             userDocRoles = userDocData.get("roles")
             userDocServers = userDocData.get("servers")
             #print(userDocRoles)
-            #print(userDocServers)
+            print("This is the new list of servers", userDocServers)
             if str(serverID) in userDocServers and str(serverID) in userDocRoles:
                 #print("User In Server!")
                 UsersRoleInServer = userDocRoles[str(serverID)]
@@ -137,7 +138,7 @@ class reactClass(commands.Cog):
                 userDoc.set({
                 "name":member.name,
                 "roles":userDocRoles,
-                "servers":userDocServers,
+                "servers":[str(serverID)],
                 "userID":str(member.id)
             })
                 print(f"Updated {member.name}:{member.id} document in User collection. Added {serverID} ignored {roleID}")
@@ -258,7 +259,11 @@ class reactClass(commands.Cog):
                         "name": member.name,
                         "roles": {},
                         "adminRoles": {},
+<<<<<<< HEAD
                         "servers": [str(ctx.guild.id)],
+=======
+                        "servers": [str(guild.id)],
+>>>>>>> 43ae1885eadb14e50ccc4e2e5a5fed9ebbaf9070
                         "userID": str(member.id)
                     })
 
